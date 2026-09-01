@@ -6,6 +6,8 @@ import {
 } from 'typeorm/browser';
 import type { Link } from '../../link/entities/link.entity.js';
 import type { PendingCheckout } from '../../pending-checkout/entities/pending-checkout.entity.js';
+import type { Payment } from '../../payment/entities/payment.entity.js';
+import type { Upload } from '../../upload/entities/upload.entity.js';
 
 const defaultCategories = ['Redes Sociais', 'Produtos', 'Conteúdo', 'Contato'];
 
@@ -66,6 +68,12 @@ export class User {
     (pendingCheckout: PendingCheckout) => pendingCheckout.user,
   )
   pendingCheckouts: PendingCheckout[];
+
+  @OneToMany('Payment', (payment: Payment) => payment.user)
+  payments: Payment[];
+
+  @OneToMany('Upload', (upload: Upload) => upload.user)
+  uploads: Upload[];
 
   @Column({ nullable: false, default: false })
   deleted: boolean;

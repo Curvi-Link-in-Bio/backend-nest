@@ -12,6 +12,10 @@ import { ReviewModule } from './review/review.module.js';
 import { Review } from './review/entities/review.entity.js';
 import { PendingCheckoutModule } from './pending-checkout/pending-checkout.module.js';
 import { PendingCheckout } from './pending-checkout/entities/pending-checkout.entity.js';
+import { PaymentModule } from './payment/payment.module.js';
+import { Payment } from './payment/entities/payment.entity.js';
+import { UploadModule } from './upload/upload.module.js';
+import { Upload } from './upload/entities/upload.entity.js';
 
 @Module({
   imports: [
@@ -22,7 +26,15 @@ import { PendingCheckout } from './pending-checkout/entities/pending-checkout.en
       username: process.env.USERNAME_DB,
       password: process.env.PASSWORD_DB,
       database: process.env.NAME_DB,
-      entities: [User, Link, LinkClick, Review, PendingCheckout],
+      entities: [
+        User,
+        Link,
+        LinkClick,
+        Review,
+        PendingCheckout,
+        Payment,
+        Upload,
+      ],
       synchronize: true,
     }),
     UserModule,
@@ -30,6 +42,8 @@ import { PendingCheckout } from './pending-checkout/entities/pending-checkout.en
     LinkClickModule,
     ReviewModule,
     PendingCheckoutModule,
+    PaymentModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],
