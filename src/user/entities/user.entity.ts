@@ -8,8 +8,11 @@ import type { Link } from '../../link/entities/link.entity.js';
 import type { PendingCheckout } from '../../pending-checkout/entities/pending-checkout.entity.js';
 import type { Payment } from '../../payment/entities/payment.entity.js';
 import type { Upload } from '../../upload/entities/upload.entity.js';
+import { PlanEnum } from '../enums/plan.enum.js';
+import { ThemeEnum } from '../enums/theme.enum.js';
+import { PaymentMethodEnum } from '../enums/paymentMethod.enum.js';
 
-const defaultCategories = ['Redes Sociais', 'Produtos', 'Conteúdo', 'Contato'];
+const defaultCategories = ['redes sociais', 'produtos', 'conteúdo', 'contato'];
 
 @Entity('users')
 export class User {
@@ -19,8 +22,8 @@ export class User {
   @Column({ nullable: false, length: 100 })
   email: string;
 
-  @Column({ name: 'password_hash', nullable: false, length: 255 })
-  passwordHash: string;
+  @Column({ nullable: false, length: 255 })
+  password: string;
 
   @Column({ nullable: false, length: 50 })
   username: string;
@@ -31,11 +34,11 @@ export class User {
   @Column({ nullable: true, type: 'text' })
   bio: string;
 
-  @Column({ name: 'avatar_url', nullable: true, length: 255 })
+  @Column({ name: 'avatar_url', nullable: true, type: 'text' })
   avatarUrl: string;
 
-  @Column({ nullable: false, length: 50 })
-  theme: string;
+  @Column({ nullable: false, enum: ThemeEnum })
+  theme: ThemeEnum;
 
   @Column({ name: 'button_color', nullable: false, length: 50 })
   buttonColor: string;
@@ -43,14 +46,14 @@ export class User {
   @Column({ name: 'background_color', nullable: false, length: 50 })
   backgroundColor: string;
 
-  @Column({ name: 'background_image_url', nullable: true, length: 255 })
+  @Column({ name: 'background_image_url', nullable: true, type: 'text' })
   backgroundImageUrl: string;
 
-  @Column({ nullable: false, length: 50 })
-  plan: string;
+  @Column({ nullable: false, enum: PlanEnum })
+  plan: PlanEnum;
 
-  @Column({ name: 'payment_method', nullable: false, length: 50 })
-  paymentMethod: string;
+  @Column({ name: 'payment_method', nullable: false, enum: PaymentMethodEnum })
+  paymentMethod: PaymentMethodEnum;
 
   @Column({
     nullable: false,

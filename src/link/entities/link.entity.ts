@@ -21,7 +21,7 @@ export class Link {
   @Column({ nullable: false, length: 100 })
   title: string;
 
-  @Column({ nullable: false, length: 255 })
+  @Column({ nullable: false, type: 'text' })
   url: string;
 
   @Column({ nullable: false, default: true })

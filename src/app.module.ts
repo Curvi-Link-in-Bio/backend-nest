@@ -16,6 +16,7 @@ import { PaymentModule } from './payment/payment.module.js';
 import { Payment } from './payment/entities/payment.entity.js';
 import { UploadModule } from './upload/upload.module.js';
 import { Upload } from './upload/entities/upload.entity.js';
+import { AuthModule } from './auth/auth.module.js';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { Upload } from './upload/entities/upload.entity.js';
     PendingCheckoutModule,
     PaymentModule,
     UploadModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
