@@ -17,6 +17,7 @@ import { Payment } from './payment/entities/payment.entity.js';
 import { UploadModule } from './upload/upload.module.js';
 import { Upload } from './upload/entities/upload.entity.js';
 import { AuthModule } from './auth/auth.module.js';
+import { RedisService } from './redis/redis.service.js';
 
 @Module({
   imports: [
@@ -48,6 +49,6 @@ import { AuthModule } from './auth/auth.module.js';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, RedisService],
 })
 export class AppModule {}

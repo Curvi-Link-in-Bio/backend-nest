@@ -10,12 +10,15 @@ import { PaymentMethodEnum } from '../user/enums/paymentMethod.enum.js';
 import { compare, hash } from 'bcrypt';
 import { SigninDto } from './dto/signin.dto.js';
 import { JwtService } from '@nestjs/jwt';
+import { RedisService } from '../redis/redis.service.js';
+import { RedisKey } from '../redis/enum/redis-key.enum.js';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly redisService: RedisService,
   ) { }
 
   async signup(signupDto: SignupDto) {
@@ -56,6 +59,8 @@ export class AuthService {
     };
 
     const token = await this.jwtService.signAsync(payload);
+
+    await this.redisService.set(`${RedisKey.USER_SESSION}:${user.id}`, token);
 
     delete (user as any).password;
     delete (user as any).deleted;
