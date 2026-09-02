@@ -45,7 +45,6 @@ export class AuthService {
 
   async signin(signinDto: SigninDto) {
     const user = await this.userService.findOneforEmail(signinDto.email.trim().toLowerCase());
-    Logger.debug(`User found: ${JSON.stringify(user, null, 2)}`, 'AuthService.signin');
 
     if (!user) {
       throw new BadRequestException('User not found');
@@ -71,6 +70,15 @@ export class AuthService {
       user,
       token,
     };
+  }
+
+  async signout(authorization: string) {
+    const token = authorization?.replace('Bearer ', '');
+    const decodedToken = this.jwtService.decode(token);
+
+    await this.redisService.del(`${RedisKey.USER_SESSION}:${decodedToken.sub}`);
+    
+    return;
   }
 
   create(createAuthDto: CreateAuthDto) {

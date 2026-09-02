@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpCode, Head, Headers } from '@nestjs/common';
 import { AuthService } from './auth.service.js';
 import { CreateAuthDto } from './dto/create-auth.dto.js';
 import { UpdateAuthDto } from './dto/update-auth.dto.js';
@@ -17,9 +17,16 @@ export class AuthController {
   }
 
   @Public()
+  @HttpCode(HttpStatus.OK)
   @Post('signin')
   signin(@Body() signinDto: SigninDto) {
     return this.authService.signin(signinDto)
+  }
+
+  @Post('signout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  signout(@Headers('authorization') authorization: string) {
+    return this.authService.signout(authorization);
   }
 
   @Post()
