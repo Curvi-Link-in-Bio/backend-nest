@@ -52,18 +52,19 @@ export class AuthService {
       throw new BadRequestException('Invalid password');
     }
 
-    Logger.debug(`User authenticated: ${JSON.stringify(user, null, 2)}`, 'AuthService.signin');
-
-    const payload = { sub: user.id, email: user.email, username: user.username, displayName: user.displayName,
-      plan: user.plan,
+    const payload = { sub: user.id, email: user.email, plan: user.plan,
     };
-    
-    Logger.debug(`JWT Payload: ${JSON.stringify(payload, null, 2)}`, 'AuthService.signin');
-    const jwtToken = await this.jwtService.signAsync(payload);
-    Logger.debug(`JWT Token generated: ${jwtToken}`, 'AuthService.signin');
+
+    const token = await this.jwtService.signAsync(payload);
+
+    delete (user as any).password;
+    delete (user as any).deleted;
+    delete (user as any).createdAt;
+    delete (user as any).updatedAt;
 
     return {
-      accessToken: jwtToken,
+      user,
+      token,
     };
   }
 
