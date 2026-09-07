@@ -52,6 +52,11 @@ export class UserService {
 
   async findOneforEmail(email: string) {
     const user = await this.userRepository.findOne({ where: { email, deleted: false } });
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    
     return user;
   }
 

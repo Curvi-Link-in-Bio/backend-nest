@@ -18,16 +18,21 @@ import { UploadModule } from './upload/upload.module.js';
 import { Upload } from './upload/entities/upload.entity.js';
 import { AuthModule } from './auth/auth.module.js';
 import { RedisService } from './redis/redis.service.js';
+import { ScheduleModule } from '@nestjs/schedule';
+import { WorkerService } from './worker/worker.service.js';
+import { RedisModule } from './redis/redis.module.js';
+import { RabbitmqModule } from './rabbitmq/rabbitmq.module.js';
+import { NodemailerModule } from './nodemailer/nodemailer.module.js';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.HOST_DB,
-      port: Number(process.env.PORT_DB),
-      username: process.env.USERNAME_DB,
-      password: process.env.PASSWORD_DB,
-      database: process.env.NAME_DB,
+      host: process.env.CURVI_HOST_DB,
+      port: Number(process.env.CURVI_PORT_DB),
+      username: process.env.CURVI_USERNAME_DB,
+      password: process.env.CURVI_PASSWORD_DB,
+      database: process.env.CURVI_NAME_DB,
       entities: [
         User,
         Link,
@@ -47,8 +52,12 @@ import { RedisService } from './redis/redis.service.js';
     PaymentModule,
     UploadModule,
     AuthModule,
+    ScheduleModule.forRoot(),
+    RedisModule,
+    RabbitmqModule,
+    NodemailerModule,
   ],
   controllers: [AppController],
-  providers: [AppService, RedisService],
+  providers: [AppService, WorkerService],
 })
 export class AppModule {}

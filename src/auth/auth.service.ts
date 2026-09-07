@@ -12,6 +12,10 @@ import { SigninDto } from './dto/signin.dto.js';
 import { JwtService } from '@nestjs/jwt';
 import { RedisService } from '../redis/redis.service.js';
 import { RedisKey } from '../redis/enum/redis-key.enum.js';
+import { RabbitmqService } from '../rabbitmq/rabbitmq.service.js';
+import { ExchangeEnum } from '../rabbitmq/enums/exchange.enum.js';
+import { RoutingKeyEnum } from '../rabbitmq/enums/routing-key.enum.js';
+import { ResetPasswordDto } from './dto/reset-password.dto.js';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +23,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly redisService: RedisService,
+    private readonly rabbitmqService: RabbitmqService,
   ) { }
 
   async signup(signupDto: SignupDto) {
@@ -46,15 +51,12 @@ export class AuthService {
   async signin(signinDto: SigninDto) {
     const user = await this.userService.findOneforEmail(signinDto.email.trim().toLowerCase());
 
-    if (!user) {
-      throw new BadRequestException('User not found');
-    }
-
     if (!(await compare(signinDto.password, user.password))) {
       throw new BadRequestException('Invalid password');
     }
 
-    const payload = { sub: user.id, email: user.email, plan: user.plan,
+    const payload = {
+      sub: user.id, email: user.email, plan: user.plan,
     };
 
     const token = await this.jwtService.signAsync(payload);
@@ -74,11 +76,21 @@ export class AuthService {
 
   async signout(authorization: string) {
     const token = authorization?.replace('Bearer ', '');
-    const decodedToken = this.jwtService.decode(token);
+    const payload = this.jwtService.decode(token);
 
-    await this.redisService.del(`${RedisKey.USER_SESSION}:${decodedToken.sub}`);
-    
+    await this.redisService.del(`${RedisKey.USER_SESSION}:${payload.sub}`);
+
     return;
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const user = await this.userService.findOneforEmail(resetPasswordDto.email.trim().toLowerCase());
+    const exchange = ExchangeEnum.DIRECT;
+    const routingKey = RoutingKeyEnum.RESET_PASSWORD;
+    const msg = JSON.stringify({ id: user.id, email: user.email, plan: user.plan });
+    
+    await this.rabbitmqService.publishToExchange(exchange, routingKey, msg);
+    return 'Reset password request sent';
   }
 
   create(createAuthDto: CreateAuthDto) {

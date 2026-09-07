@@ -5,6 +5,7 @@ import { UpdateAuthDto } from './dto/update-auth.dto.js';
 import { SignupDto } from './dto/signup.dto.js';
 import { SigninDto } from './dto/signin.dto.js';
 import { Public } from './decorators/public.decorator.js';
+import { ResetPasswordDto } from './dto/reset-password.dto.js';
 
 @Controller('auth')
 export class AuthController {
@@ -27,6 +28,13 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   signout(@Headers('authorization') authorization: string) {
     return this.authService.signout(authorization);
+  }
+
+  @Public()
+  @Post('reset-password')
+  @HttpCode(HttpStatus.ACCEPTED)
+  resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(resetPasswordDto);
   }
 
   @Post()

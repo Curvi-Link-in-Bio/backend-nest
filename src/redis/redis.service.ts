@@ -1,16 +1,20 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { createClient } from 'redis';
+import { createClient, RedisClientType } from 'redis';
 
 @Injectable()
 export class RedisService {
-    private client: any;
+    private client: RedisClientType<{}, {}, {}, 3, {}>;
 
     async onModuleInit() {
-        // Initialize the Redis client here
-        this.client = createClient(); // Replace with actual Redis client initialization
-        this.client.on('error', (err: any) => Logger.error(`Redis Client Error: ${err}`, 'RedisService.onModuleInit'));
-        await this.client.connect();
-        Logger.log('Redis client connected successfully', 'RedisService.onModuleInit');
+        try {
+            // Initialize the Redis client here
+            this.client = createClient(); // Replace with actual Redis client initialization
+            this.client.on('error', (err: any) => Logger.error(`Redis Client Error: ${err}`, 'RedisService'));
+            await this.client.connect();
+            Logger.log('Redis client connected successfully', 'RedisService');
+        } catch (error: any) {
+            Logger.error(`Failed to initialize Redis: ${error.message}`, 'RedisService');
+        }
     }
 
     async get(key: string) {
