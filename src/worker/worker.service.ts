@@ -32,7 +32,7 @@ export class WorkerService {
                 email,
                 'Curvi - Redefinição de senha',
                 'Clique no link para redefinir sua senha. Link expira em 15 minutos.',
-                `<p>Clique no link para <a href="${process.env.CURVI_URL_RESET_PASSWORD}?t=${token}&&e=${email}" target="_blank">redefinir sua senha</a>. Link expira em 15 minutos.</p>`
+                `<p>Clique no link para <a href="${process.env.CURVI_URL_RESET_PASSWORD}?t=${token}" target="_blank">redefinir sua senha</a>. Link expira em 15 minutos.</p>`
             );
 
         }

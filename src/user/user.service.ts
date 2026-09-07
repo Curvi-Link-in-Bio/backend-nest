@@ -60,12 +60,28 @@ export class UserService {
     return user;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: string) {
+    const findUser = await this.userRepository.findOne({ where: { id, deleted: false } });
+
+    if (!findUser) {
+      throw new BadRequestException('User not found');
+    }
+
+    return findUser;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    const userExists = await this.findOne(id);
+
+    if (!userExists) {
+      throw new BadRequestException('User not found');
+    }
+
+    const user = new User();
+    Object.assign(user, updateUserDto);
+    await this.userRepository.save(user);
+
+    return {ok: true};
   }
 
   remove(id: number) {

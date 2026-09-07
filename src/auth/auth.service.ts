@@ -16,6 +16,7 @@ import { RabbitmqService } from '../rabbitmq/rabbitmq.service.js';
 import { ExchangeEnum } from '../rabbitmq/enums/exchange.enum.js';
 import { RoutingKeyEnum } from '../rabbitmq/enums/routing-key.enum.js';
 import { ResetPasswordDto } from './dto/reset-password.dto.js';
+import { ResetPasswordConfirmDto } from './dto/reset-password-confirm.dto.js';
 
 @Injectable()
 export class AuthService {
@@ -89,8 +90,25 @@ export class AuthService {
     const routingKey = RoutingKeyEnum.RESET_PASSWORD;
     const msg = JSON.stringify({ id: user.id, email: user.email, plan: user.plan });
     
-    await this.rabbitmqService.publishToExchange(exchange, routingKey, msg);
-    return 'Reset password request sent';
+    await this.rabbitmqService.publishToExchange(exchange, routingKey, msg); 
+
+    return {ok: true}; 
+  }
+
+  async resetPasswordConfirm(authorization: string, resetPasswordConfirmDto: ResetPasswordConfirmDto) {
+    const { newPassword } = resetPasswordConfirmDto;
+    const token = authorization?.replace('Bearer ', '');  
+    const payload = this.jwtService.decode(token);
+    const userId = payload.sub;
+
+    const user = await this.userService.findOne(userId);
+
+    user.password = await hash(newPassword, 10);
+    await this.userService.update(userId, user);
+
+    await this.redisService.del(`${RedisKey.USER_SESSION}:${userId}`);
+
+    return { ok: true };
   }
 
   create(createAuthDto: CreateAuthDto) {

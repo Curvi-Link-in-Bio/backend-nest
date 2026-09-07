@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpCode, Head, Headers } from '@nestjs/common';
+import { ResetPasswordConfirmDto } from './dto/reset-password-confirm.dto.js';
 import { AuthService } from './auth.service.js';
 import { CreateAuthDto } from './dto/create-auth.dto.js';
 import { UpdateAuthDto } from './dto/update-auth.dto.js';
@@ -35,6 +36,12 @@ export class AuthController {
   @HttpCode(HttpStatus.ACCEPTED)
   resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.authService.resetPassword(resetPasswordDto);
+  }
+
+  @Post('reset-password-confirm')
+  @HttpCode(HttpStatus.OK)
+  resetPasswordConfirm(@Headers('authorization') authorization: string, @Body() resetPasswordConfirmDto: ResetPasswordConfirmDto) {
+    return this.authService.resetPasswordConfirm(authorization, resetPasswordConfirmDto);
   }
 
   @Post()
