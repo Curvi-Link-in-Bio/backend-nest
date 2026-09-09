@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpCode, Head, Headers } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  HttpStatus,
+  HttpCode,
+  Head,
+  Headers,
+} from '@nestjs/common';
 import { ResetPasswordConfirmDto } from './dto/reset-password-confirm.dto.js';
 import { AuthService } from './auth.service.js';
 import { CreateAuthDto } from './dto/create-auth.dto.js';
@@ -22,7 +34,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('signin')
   signin(@Body() signinDto: SigninDto) {
-    return this.authService.signin(signinDto)
+    return this.authService.signin(signinDto);
   }
 
   @Post('signout')
@@ -40,32 +52,13 @@ export class AuthController {
 
   @Post('reset-password-confirm')
   @HttpCode(HttpStatus.OK)
-  resetPasswordConfirm(@Headers('authorization') authorization: string, @Body() resetPasswordConfirmDto: ResetPasswordConfirmDto) {
-    return this.authService.resetPasswordConfirm(authorization, resetPasswordConfirmDto);
-  }
-
-  @Post()
-  create(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.create(createAuthDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.authService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
+  resetPasswordConfirm(
+    @Headers('authorization') authorization: string,
+    @Body() resetPasswordConfirmDto: ResetPasswordConfirmDto,
+  ) {
+    return this.authService.resetPasswordConfirm(
+      authorization,
+      resetPasswordConfirmDto,
+    );
   }
 }

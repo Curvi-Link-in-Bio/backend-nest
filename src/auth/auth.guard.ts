@@ -1,13 +1,23 @@
-import { CanActivate, ExecutionContext, Injectable, Logger, UnauthorizedException } from "@nestjs/common";
-import { Reflector } from "@nestjs/core";
-import { JwtService } from "@nestjs/jwt";
-import { RedisService } from "../redis/redis.service.js";
-import { IS_PUBLIC_KEY } from "./decorators/public.decorator.js";
-import { RedisKey } from "../redis/enum/redis-key.enum.js";
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { JwtService } from '@nestjs/jwt';
+import { RedisService } from '../redis/redis.service.js';
+import { IS_PUBLIC_KEY } from './decorators/public.decorator.js';
+import { RedisKey } from '../redis/enum/redis-key.enum.js';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private readonly jwtService: JwtService, private reflector: Reflector, private readonly redisService: RedisService) { }
+  constructor(
+    private readonly jwtService: JwtService,
+    private reflector: Reflector,
+    private readonly redisService: RedisService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
@@ -25,12 +35,14 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
     try {
-      // 💡 Here the JWT secret key that's used for verifying the payload 
+      // 💡 Here the JWT secret key that's used for verifying the payload
       // is the key that was passed in the JwtModule
       const payload = await this.jwtService.verifyAsync(token);
       // 💡 We're assigning the payload to the request object here
       // so that we can access it in our route handlers
-      const userSession = await this.redisService.get(`${RedisKey.USER_SESSION}:${payload.sub}`);
+      const userSession = await this.redisService.get(
+        `${RedisKey.USER_SESSION}:${payload.sub}`,
+      );
 
       if (!userSession || userSession !== token) {
         throw new UnauthorizedException();

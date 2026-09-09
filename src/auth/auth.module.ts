@@ -10,15 +10,23 @@ import { RedisModule } from '../redis/redis.module.js';
 import { RabbitmqModule } from '../rabbitmq/rabbitmq.module.js';
 
 @Module({
-  imports: [UserModule, RedisModule, RabbitmqModule, JwtModule.register({
+  imports: [
+    UserModule,
+    RedisModule,
+    RabbitmqModule,
+    JwtModule.register({
       global: true,
       secret: process.env.CURVI_JWT_SECRET,
       signOptions: { expiresIn: '1d' },
-    }),],
+    }),
+  ],
   controllers: [AuthController],
-  providers: [AuthService, {
-    provide: APP_GUARD,
-    useClass: AuthGuard,
-  }],
+  providers: [
+    AuthService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+  ],
 })
 export class AuthModule {}

@@ -25,14 +25,17 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly redisService: RedisService,
     private readonly rabbitmqService: RabbitmqService,
-  ) { }
+  ) {}
 
   async signup(signupDto: SignupDto) {
     const newUser = new User();
     newUser.email = signupDto.email.trim().toLowerCase();
     newUser.password = await hash(signupDto.password, 10);
-    newUser.username = signupDto.username.trim().toLowerCase();
-    newUser.displayName = signupDto.username.trim().toLowerCase().replaceAll(' ', '-');
+    newUser.username = signupDto.username
+      .trim()
+      .toLowerCase()
+      .replaceAll(' ', '-');
+    newUser.displayName = signupDto.username.trim().toLowerCase();
     newUser.theme = ThemeEnum.GOLD_NOIR;
     newUser.buttonColor = '#D4AF37';
     newUser.backgroundColor = '#18181B';
@@ -50,27 +53,31 @@ export class AuthService {
   }
 
   async signin(signinDto: SigninDto) {
-    const user = await this.userService.findOneforEmail(signinDto.email.trim().toLowerCase());
+    const user = await this.userService.findOneforEmail(
+      signinDto.email.trim().toLowerCase(),
+    );
 
     if (!(await compare(signinDto.password, user.password))) {
       throw new BadRequestException('Invalid password');
     }
 
     const payload = {
-      sub: user.id, email: user.email, plan: user.plan,
+      sub: user.id,
+      email: user.email,
+      plan: user.plan,
     };
 
     const token = await this.jwtService.signAsync(payload);
 
     await this.redisService.set(`${RedisKey.USER_SESSION}:${user.id}`, token);
 
-    delete (user as any).password;
-    delete (user as any).deleted;
-    delete (user as any).createdAt;
-    delete (user as any).updatedAt;
-
     return {
-      user,
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        displayName: user.displayName,
+      },
       token,
     };
   }
@@ -85,19 +92,28 @@ export class AuthService {
   }
 
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
-    const user = await this.userService.findOneforEmail(resetPasswordDto.email.trim().toLowerCase());
+    const user = await this.userService.findOneforEmail(
+      resetPasswordDto.email.trim().toLowerCase(),
+    );
     const exchange = ExchangeEnum.DIRECT;
     const routingKey = RoutingKeyEnum.RESET_PASSWORD;
-    const msg = JSON.stringify({ id: user.id, email: user.email, plan: user.plan });
-    
-    await this.rabbitmqService.publishToExchange(exchange, routingKey, msg); 
+    const msg = JSON.stringify({
+      id: user.id,
+      email: user.email,
+      plan: user.plan,
+    });
 
-    return {ok: true}; 
+    await this.rabbitmqService.publishToExchange(exchange, routingKey, msg);
+
+    return { ok: true };
   }
 
-  async resetPasswordConfirm(authorization: string, resetPasswordConfirmDto: ResetPasswordConfirmDto) {
+  async resetPasswordConfirm(
+    authorization: string,
+    resetPasswordConfirmDto: ResetPasswordConfirmDto,
+  ) {
     const { newPassword } = resetPasswordConfirmDto;
-    const token = authorization?.replace('Bearer ', '');  
+    const token = authorization?.replace('Bearer ', '');
     const payload = this.jwtService.decode(token);
     const userId = payload.sub;
 
@@ -109,25 +125,5 @@ export class AuthService {
     await this.redisService.del(`${RedisKey.USER_SESSION}:${userId}`);
 
     return { ok: true };
-  }
-
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
-  }
-
-  findAll() {
-    return `This action returns all auth`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
   }
 }
