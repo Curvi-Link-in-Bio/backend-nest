@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  BadRequestException,
 } from '@nestjs/common';
 import { LinkService } from './link.service.js';
 import { CreateLinkDto } from './dto/create-link.dto.js';
@@ -15,28 +16,42 @@ import { UpdateLinkDto } from './dto/update-link.dto.js';
 export class LinkController {
   constructor(private readonly linkService: LinkService) {}
 
-  @Post()
-  create(@Body() createLinkDto: CreateLinkDto) {
-    return this.linkService.create(createLinkDto);
+  @Get('by/:userId')
+  findLinksByUserId(@Param('userId') userId: string) {
+    return this.linkService.findLinksByUserId(userId);
   }
 
-  @Get()
-  findAll() {
-    return this.linkService.findAll();
+  @Post('by/:userId')
+  createLinkByUserId(@Param('userId') userId: string, @Body() createLinkDto: CreateLinkDto) {
+    return this.linkService.createLinkByUserId(userId, createLinkDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.linkService.findOne(+id);
+  @Patch(':linkId/by/:userId')
+  updateLinkByIdAndUserId(
+    @Param('linkId') linkId: string,
+    @Param('userId') userId: string,
+    @Body() updateLinkDto: UpdateLinkDto,
+  ) {
+    return this.linkService.updateLinkByIdAndUserId(linkId, userId, updateLinkDto);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLinkDto: UpdateLinkDto) {
-    return this.linkService.update(+id, updateLinkDto);
+  @Delete(':linkId/by/:userId')
+  deleteLinkByIdAndUserId(
+    @Param('linkId') linkId: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.linkService.deleteLinkByIdAndUserId(linkId, userId);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.linkService.remove(+id);
+  @Post('reorder/by/:userId')
+  reorderLinksByUserId(
+    @Param('userId') userId: string,
+    @Body() reorderLinksDto: string[], // Replace 'any' with the appropriate DTO if available
+  ) {
+    if (!reorderLinksDto || !Array.isArray(reorderLinksDto)) {
+      throw new BadRequestException('Body is string[]');
+    }
+    
+    return this.linkService.reorderLinksByUserId(userId, reorderLinksDto);
   }
 }

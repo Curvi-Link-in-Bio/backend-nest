@@ -12,6 +12,7 @@ import { UserService } from './user.service.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import { Public } from '../auth/decorators/public.decorator.js';
+import { CreateLinkDto } from './dto/create-link.dto.js';
 
 @Controller('user')
 export class UserController {

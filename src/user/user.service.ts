@@ -198,7 +198,7 @@ export class UserService {
       where: { username, deleted: false },
       relations: {
         links: true,
-      },
+      }
     });
 
     if (!userExists) {

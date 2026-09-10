@@ -33,7 +33,7 @@ export class Link {
   @Column({ nullable: false, length: 100 })
   category: string;
 
-  @Column({ nullable: false, type: 'integer' })
+  @Column({ nullable: false, type: 'integer', default: 0 })
   position: number;
 
   @OneToMany('LinkClick', (linkClick: LinkClick) => linkClick.link)
