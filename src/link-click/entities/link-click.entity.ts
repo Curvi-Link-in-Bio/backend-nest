@@ -16,11 +16,11 @@ export class LinkClick {
   @JoinColumn({ name: 'link_id' })
   link: Link;
 
-  @Column({ nullable: false, length: 255 })
-  referrer: string;
+  // @Column({ nullable: false, length: 255 })
+  // referrer: string;
 
-  @Column({ name: 'user_agent', nullable: false, length: 100 })
-  userAgent: string;
+  // @Column({ name: 'user_agent', nullable: false, length: 100 })
+  // userAgent: string;
 
   @Column({ nullable: false, default: false })
   deleted: boolean;

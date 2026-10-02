@@ -2,10 +2,13 @@ import { Injectable, Logger } from '@nestjs/common';
 import { RedisService } from '../redis/redis.service.js';
 import { RabbitmqService } from '../rabbitmq/rabbitmq.service.js';
 import { RoutingKeyEnum } from '../rabbitmq/enums/routing-key.enum.js';
-import { Cron, Interval } from '@nestjs/schedule';
 import { NodemailerService } from '../nodemailer/nodemailer.service.js';
 import { JwtService } from '@nestjs/jwt';
 import { RedisKey } from '../redis/enum/redis-key.enum.js';
+import { InjectRepository } from '@nestjs/typeorm';
+import { LinkClick } from '../link-click/entities/link-click.entity.js';
+import { Repository } from 'typeorm';
+import { Link } from '../link/entities/link.entity.js';
 
 @Injectable()
 export class WorkerService {
@@ -14,10 +17,15 @@ export class WorkerService {
     private readonly nodemailerService: NodemailerService,
     private readonly jwtService: JwtService,
     private readonly redisService: RedisService,
+    @InjectRepository(Link)
+    private readonly linkRepository: Repository<Link>,
+    @InjectRepository(LinkClick)
+    private readonly linkClickRepository: Repository<LinkClick>,
   ) {}
 
   async onModuleInit() {
     await this.resetPasswordWorker();
+    await this.addClick();
   }
 
   async resetPasswordWorker() {
@@ -37,6 +45,33 @@ export class WorkerService {
         'Clique no link para redefinir sua senha. Link expira em 15 minutos.',
         `<p>Clique no link para <a href="${process.env.CURVI_URL_RESET_PASSWORD}?t=${token}" target="_blank">redefinir sua senha</a>. Link expira em 15 minutos.</p>`,
       );
+    };
+
+    await this.rabbitmqService.recieveMessage(queue, callback);
+  }
+
+  async addClick() {
+    const queue = RoutingKeyEnum.ADD_CLICK;
+    const callback = async (msg: string) => {
+      const { username, linkId } = JSON.parse(msg);
+      Logger.debug(`Link clicked by user: ${username}, linkId: ${linkId}`, 'WorkerService');
+      const link = await this.linkRepository.findOne({
+        where: { id: linkId, deleted: false, user: { username } },
+      });
+      
+      if (!link) {
+        Logger.debug(`Link not found for user: ${username}, linkId: ${linkId}`, 'WorkerService');
+        return;
+      }
+      
+      link.clicks += 1;
+      
+      await this.linkRepository.save(link);
+
+      const newLinkClick = new LinkClick();
+      newLinkClick.link = link;
+
+      await this.linkClickRepository.save(newLinkClick);
     };
 
     await this.rabbitmqService.recieveMessage(queue, callback);

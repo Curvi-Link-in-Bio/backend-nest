@@ -56,6 +56,9 @@ export class UserService {
   async findOneforEmail(email: string) {
     const user = await this.userRepository.findOne({
       where: { email, deleted: false },
+      relations: {
+        links: true,
+      }
     });
 
     if (!user) {
@@ -86,7 +89,8 @@ export class UserService {
 
     const user = new User();
     Object.assign(user, updateUserDto);
-    await this.userRepository.save(user);
+    const updatedUser = await this.userRepository.save(user);
+    Logger.debug(`Updated user: ${JSON.stringify(updatedUser, null, 2)}`, 'UserService');
 
     return { ok: true };
   }
@@ -188,9 +192,9 @@ export class UserService {
         ))
       : null;
 
-    await this.userRepository.save(updatedUser);
+    const updatedUserSaved = await this.userRepository.save(updatedUser);
 
-    return { ok: true };
+    return updatedUserSaved;
   }
 
   async findOneByUsername(username: string) {

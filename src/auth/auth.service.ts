@@ -44,12 +44,9 @@ export class AuthService {
 
     const response = await this.userService.create(newUser);
 
-    return {
-      id: response.id,
-      email: response.email,
-      username: response.username,
-      displayName: response.displayName,
-    };
+    delete (response as any).password;
+
+    return response;
   }
 
   async signin(signinDto: SigninDto) {
@@ -71,13 +68,10 @@ export class AuthService {
 
     await this.redisService.set(`${RedisKey.USER_SESSION}:${user.id}`, token);
 
+    delete (user as any).password;
+
     return {
-      user: {
-        id: user.id,
-        email: user.email,
-        username: user.username,
-        displayName: user.displayName,
-      },
+      user,
       token,
     };
   }

@@ -23,6 +23,7 @@ import { WorkerService } from './worker/worker.service.js';
 import { RedisModule } from './redis/redis.module.js';
 import { RabbitmqModule } from './rabbitmq/rabbitmq.module.js';
 import { NodemailerModule } from './nodemailer/nodemailer.module.js';
+import { WorkerModule } from './worker/worker.module.js';
 
 @Module({
   imports: [
@@ -56,8 +57,9 @@ import { NodemailerModule } from './nodemailer/nodemailer.module.js';
     RedisModule,
     RabbitmqModule,
     NodemailerModule,
+    WorkerModule,
   ],
   controllers: [AppController],
-  providers: [AppService, WorkerService],
+  providers: [AppService],
 })
 export class AppModule {}
